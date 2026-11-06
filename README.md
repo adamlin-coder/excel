@@ -30,7 +30,9 @@ docker compose logs --tail=50
 
 ### 讓同一區域網路的同事連線
 
-預設只允許 Mac 本機連線。若要開放區域網路，在專案根目錄建立 `.env`（不含密碼）：
+預設已開放 Mac 的區域網路介面。同事可直接以 `http://Mac的區網IP:8000` 存取並登入，不需另外修改設定。
+
+若你曾使用舊版，請確認專案根目錄的 `.env` 沒有將 `CSV_BIND_IP` 設為 `127.0.0.1`；可改成以下設定（不含密碼）：
 
 ```dotenv
 CSV_BIND_IP=0.0.0.0
@@ -38,7 +40,11 @@ CSV_PORT=8000
 CSV_SECURE_COOKIE=0
 ```
 
-執行 `docker compose up -d`。在 macOS「系統設定 → 網路」查看 Mac 的區網 IP，同事在相同網路以 `http://Mac的區網IP:8000` 存取，並各自登入。若 macOS 防火牆詢問，允許 Docker Desktop 的連入連線。這是 HTTP 區網配置；跨網路存取應設置 HTTPS 反向代理與 `CSV_SECURE_COOKIE=1`，不要直接把 HTTP 連接埠轉送到公網。
+更新後執行 `docker compose up -d --build`，套用連線設定並重建容器；既有資料卷會保留。不要使用 `down -v`。在 macOS「系統設定 → 網路」查看 Mac 的區網 IP，同事在相同網路以 `http://Mac的區網IP:8000` 存取，並各自登入。若 macOS 防火牆詢問，允許 Docker Desktop 的連入連線。這是 HTTP 區網配置；跨網路存取應設置 HTTPS 反向代理與 `CSV_SECURE_COOKIE=1`，不要直接把 HTTP 連接埠轉送到公網。
+
+如果同事無法連線，先在 Mac 自己的瀏覽器用相同區網 IP 測試，再確認兩台電腦位於可互通的網路、macOS 防火牆允許 Docker Desktop，且不是會隔離裝置的訪客 Wi-Fi。可執行 `docker compose ps` 確認服務正常，並確認 Ports 顯示 `0.0.0.0:8000->8000/tcp`。
+
+若只想限制本機使用，可在 `.env` 設定 `CSV_BIND_IP=127.0.0.1` 後重跑 `docker compose up -d`。
 
 Mac 需保持開機，Docker Desktop 需持續執行；睡眠或關機會中斷連線。所有帳號共用同一批資料，並非每人獨立的私有空間。
 

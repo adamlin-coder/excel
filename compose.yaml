@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     init: true
     ports:
-      - "${CSV_BIND_IP:-127.0.0.1}:${CSV_PORT:-8000}:8000"
+      - "${CSV_BIND_IP:-0.0.0.0}:${CSV_PORT:-8000}:8000"
     environment:
       CSV_DATA_DIR: /data
       CSV_CONFIG_FILE: /run/secrets/csv_config
